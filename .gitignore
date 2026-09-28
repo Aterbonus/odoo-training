@@ -1,0 +1,63 @@
+# --- Entorno local / Docker ---
+.env
+.DS_Store
+
+# --- Bytecode / cache de Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- Distribución / empaquetado ---
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+MANIFEST
+
+# --- Entornos virtuales ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Herramientas de testing / cobertura ---
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+nosetests.xml
+
+# --- Type checking / linters ---
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Logs y archivos temporales ---
+*.log
+*.pot
+*.pyc.*
+
+# --- Editores / IDEs ---
+.vscode/
+.idea/
+*.swp
+
+# --- Específico de Odoo ---
+# Repos externos (OCA) descargados con `make oca-pull` (ver repos.yaml)
+external-addons/
+# Source de Odoo montado en el contenedor (ver docker-compose.yml)
+/odoo/
+*.pyc
+filestore/
+sessions/

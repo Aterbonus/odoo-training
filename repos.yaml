@@ -1,0 +1,28 @@
+# Repositorios externos (OCA u otros) que usa este proyecto.
+#
+# Formato de git-aggregator (https://github.com/acsone/git-aggregator),
+# el mismo que usa Doodba. El código se descarga en external-addons/
+# (ignorado por git) con:
+#
+#   make oca-pull
+#
+# Cada repo descargado se agrega automáticamente al addons_path.
+# Para agregar otro repo, copiar un bloque y ajustar la ruta y la URL.
+
+./external-addons/web:
+  remotes:
+    oca: https://github.com/OCA/web.git
+  merges:
+    - oca 19.0
+  target: oca 19.0
+  defaults:
+    depth: 1
+
+./external-addons/server-brand:
+  remotes:
+    oca: https://github.com/OCA/server-brand.git
+  merges:
+    - oca 19.0
+  target: oca 19.0
+  defaults:
+    depth: 1

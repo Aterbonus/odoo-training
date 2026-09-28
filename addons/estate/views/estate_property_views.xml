@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<record id="estate_property_action" model="ir.actions.act_window">
+		<field name="name">Properties</field>
+		<field name="res_model">estate.property</field>
+		<field name="view_mode">list,form</field>
+		<field name="context">{'default_search_filter_available': True}</field>
+	</record>
+
+	<record id="estate_property_view_list" model="ir.ui.view">
+		<field name="name">estate.property.view.list</field>
+		<field name="model">estate.property</field>
+		<field name="arch" type="xml">
+			<list decoration-success="state in ('offer_received', 'offer_accepted')" decoration-bf="state == 'offer_accepted'" decoration-muted="state == 'sold'">
+				<field name="name" />
+				<field name="postcode" optional="hide" />
+				<field name="bedrooms" />
+				<field name="living_area" />
+				<field name="expected_price" />
+				<field name="selling_price" />
+				<field name="date_availability" />
+			</list>
+		</field>
+	</record>
+
+	<record id="estate_property_view_search" model="ir.ui.view">
+		<field name="name">estate.property.view.search</field>
+		<field name="model">estate.property</field>
+		<field name="arch" type="xml">
+			<search>
+				<field name="name" />
+				<field name="postcode" />
+				<field name="expected_price" />
+				<field name="bedrooms" />
+				<field name="living_area" filter_domain="[('living_area', '>=', self)]" />
+				<field name="facades" />
+				<filter name="filter_available" string="Avalaible" domain="[('state', 'in', ('new', 'offer_received', 'offer_accepted'))]" />
+				<filter name="filter_new" string="New Properties" domain="[('state', '=', 'new')]" />
+				<filter name="filter_offer_received" string="Offer Received" domain="[('state', '=', 'offer_received')]" />
+				<filter name="groupby_postcode" string="Postcode" context="{'group_by': 'postcode'}" />
+			</search>
+		</field>
+	</record>
+
+	<record id="estate_property_view_form" model="ir.ui.view">
+		<field name="name">estate.property.view.form</field>
+		<field name="model">estate.property</field>
+		<field name="arch" type="xml">
+			<form>
+				<header>
+					<button type="object" name="action_sold" string="Sold" class="btn-primary" invisible="state in ('sold', 'canceled')" />
+					<button type="object" name="action_cancel" string="Cancel"  invisible="state in ('sold', 'canceled')" />
+					<field name="state" widget="statusbar" statusbar_visible="new,offer_received,offer_accepted"/>
+				</header>
+				<sheet>
+					<div class="oe_title">
+						<label for="name"/>
+						<h1>
+							<field name="name" placeholder="e.g. Mansión" />
+						</h1>
+					</div>
+					<group>
+						<field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'on_tag_click': 'open_form'}"/>
+						<group name="general_info">
+							<field name="property_type_id" can_create="False"/>
+							<field name="postcode" />
+							<field name="date_availability" />
+						</group>
+						<group name="price_info">
+							<field name="expected_price" />
+							<field name="selling_price" />
+						</group>
+					</group>
+					<notebook>
+						<page string="Description" name="description">
+							<group>
+								<field name="description" />
+								<field name="bedrooms" />
+								<field name="living_area" />
+								<field name="garage" />
+								<field name="garden" />
+								<field name="garden_area" invisible="not garden" />
+								<field name="garden_orientation" widget="radio" invisible="not garden" />
+								<field name="total_area" />
+							</group>
+						</page>
+						<page string="Offers" name="offers">
+							<group>
+								<field name="best_price" />
+							</group>
+							<field name="offer_ids" readonly="state in ('offer_accepted', 'sold', 'canceled')">
+								<list>
+									<field name="price" />
+									<field name="partner_id" />
+									<field name="validity" />
+									<field name="date_deadline" />
+									<button icon="check" type="object" name="action_accept" title="Accept" string="Accept" invisible="status" />
+									<button icon="close" type="object" name="action_refuse" title="Refuse" string="Refuse" invisible="status" />
+									<field name="status" />
+								</list>
+								<form>
+									<group>
+										<field name="price" />
+										<field name="partner_id" />
+										<field name="validity" />
+										<field name="date_deadline" />
+									</group>
+								</form>
+							</field>
+						</page>
+						<page string="Other info" name="other_info">
+							<group>
+								<field name="salesperson_id" widget="many2one_avatar" />
+								<field name="buyer_id" widget="many2one_avatar" />
+							</group>
+						</page>
+					</notebook>
+					<chatter />
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+</odoo>

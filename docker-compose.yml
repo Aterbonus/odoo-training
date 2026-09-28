@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  odoo:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+      args:
+        # Imagen oficial usada como base. El código de Odoo se toma del
+        # source montado en ./odoo (ver volumes).
+        ODOO_BASE_VERSION: ${ODOO_BASE_VERSION:-19.0}
+    restart: unless-stopped
+    # El contenedor se mantiene vivo sin arrancar Odoo automáticamente.
+    # El servicio se levanta a mano con `make odoo-run` para poder
+    # reiniciar el proceso de Odoo (necesario al agregar archivos .py
+    # nuevos a un addon) sin recrear el contenedor.
+    command: ["sleep", "infinity"]
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${ODOO_PORT:-8069}:8069"
+      - "${ODOO_LONGPOLLING_PORT:-8072}:8072"
+    environment:
+      HOST: db
+      PORT: 5432
+      USER: ${POSTGRES_USER:-odoo}
+      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      # Mismos valores que HOST/PORT/USER/PASSWORD (los usa /entrypoint.sh),
+      # pero con los nombres estándar de libpq/psycopg2. Subcomandos de
+      # `odoo` que no heredan los --db_host inyectados por entrypoint.sh
+      # (p. ej. `odoo module force-demo`) sí levantan estas variables.
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: ${POSTGRES_USER:-odoo}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-odoo}
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+      # Source de Odoo (./odoo/odoo contiene el paquete y sus addons), montado
+      # encima del paquete instalado en la imagen base.
+      - ./odoo/odoo:/usr/lib/python3/dist-packages/odoo
+      # Repos externos (OCA) descargados con `make oca-pull` (ver repos.yaml)
+      - ./external-addons:/mnt/external-addons
+      - ./config/odoo.conf:/etc/odoo/odoo.conf
+
+volumes:
+  odoo-db-data:
+  odoo-web-data:
